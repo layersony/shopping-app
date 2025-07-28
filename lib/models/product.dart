@@ -13,13 +13,24 @@ enum Category {
 }
 
 class Shopping {
-  const Shopping({
-    required this.item,
-    required this.price,
-    required this.category,
-  });
-
   final String item;
   final int price;
   final Category category;
+
+  Shopping({required this.item, required this.price, required this.category});
+
+  Map<String, dynamic> toMap() {
+    return {'item': item, 'price': price, 'category': category.name};
+  }
+
+  static Shopping fromMap(Map<String, dynamic> map) {
+    return Shopping(
+      item: map['item'],
+      price: map['price'],
+      category: Category.values.firstWhere(
+        (c) => c.name == map['category'],
+        orElse: () => Category.kitchen,
+      ),
+    );
+  }
 }

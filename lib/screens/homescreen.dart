@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:shopping_app/models/product.dart';
+import 'package:cloud_firestore/cloud_firestore.dart';
 
 class HomePage extends StatefulWidget {
   const HomePage({super.key});
@@ -9,15 +10,34 @@ class HomePage extends StatefulWidget {
 }
 
 class _homePageState extends State<HomePage> {
-  final List<Shopping> _my_shopping_list = [
-    Shopping(item: 'Rice', price: 52, category: Category.kitchen),
-  ];
+  final FirebaseFirestore _firestore = FirebaseFirestore.instance;
+  List<Shopping> _my_shopping_list = [];
+
+  // final List<Shopping> _my_shopping_list = [
+  //   Shopping(item: 'Rice', price: 52, category: Category.kitchen),
+  // ];
 
   final GlobalKey<FormState> _formkey = GlobalKey<FormState>();
 
   Category _selectedProduct = Category.sitting;
   String _item = '';
   int _price = 0;
+
+  @override
+  void initState() {
+    super.initState();
+    _loadItems();
+  }
+
+  Future<void> _loadItems() async {
+    final snapshot = await _firestore.collection('shopping').get();
+
+    setState(() {
+      _my_shopping_list = snapshot.docs
+          .map((doc) => Shopping.fromMap(doc.data()))
+          .toList();
+    });
+  }
 
   @override
   Widget build(BuildContext context) {
@@ -127,20 +147,32 @@ class _homePageState extends State<HomePage> {
           ),
           const SizedBox(height: 10),
           FilledButton(
-            onPressed: () {
+            onPressed: () async {
               if (_formkey.currentState!.validate()) {
                 _formkey.currentState!.save();
 
-                // add a shopping list
-                setState(() {
-                  _my_shopping_list.add(
-                    Shopping(
-                      item: _item,
-                      price: _price,
-                      category: _selectedProduct,
-                    ),
-                  );
-                });
+                // // add a shopping list
+                // setState(() {
+                //   _my_shopping_list.add(
+                //     Shopping(
+                //       item: _item,
+                //       price: _price,
+                //       category: _selectedProduct,
+                //     ),
+                //   );
+                // });
+
+                final shoppingItem = Shopping(
+                  item: _item,
+                  price: _price,
+                  category: _selectedProduct,
+                );
+
+                await _firestore
+                    .collection('shopping')
+                    .add(shoppingItem.toMap());
+
+                _loadItems();
               }
             },
             child: Text('Add Item'),
@@ -167,10 +199,25 @@ class _homePageState extends State<HomePage> {
             ),
             child: const Icon(Icons.delete, color: Colors.white),
           ),
-          onDismissed: (direction) {
-            setState(() {
-              _my_shopping_list.removeAt(index);
-            });
+          onDismissed: (direction) async {
+            // setState(() {
+            //   _my_shopping_list.removeAt(index);
+            // });
+
+            final docToDelete = await _firestore
+                .collection('shopping')
+                .where('item', isEqualTo: item.item)
+                .limit(1)
+                .get();
+
+            if (docToDelete.docs.isNotEmpty) {
+              await _firestore
+                  .collection('shopping')
+                  .doc(docToDelete.docs.first.id)
+                  .delete();
+            }
+
+            _loadItems();
 
             ScaffoldMessenger.of(
               context,
