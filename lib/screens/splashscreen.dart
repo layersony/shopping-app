@@ -22,8 +22,12 @@ class _SplashscreenState extends State<SplashScreen> {
 
 Widget _topSection() {
   return Text(
-    'My Home Shopping',
-    style: TextStyle(fontWeight: FontWeight.w600, fontSize: 27),
+    'Healthy Living',
+    style: TextStyle(
+      fontWeight: FontWeight.w600,
+      fontSize: 27,
+      fontFamily: 'San Francisco',
+    ),
   );
 }
 
@@ -45,9 +49,9 @@ Widget _bottomSection(BuildContext context) {
     onPressed: () => {
       Navigator.push(
         context,
-        MaterialPageRoute(builder: (context) => const HomePage())
+        MaterialPageRoute(builder: (context) => const HomePage()),
       ),
-    }, 
-    child: Text('Get Started')
+    },
+    child: Text('Get Started'),
   );
 }
