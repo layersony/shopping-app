@@ -1,10 +1,11 @@
 import 'package:flutter/material.dart';
 
 enum Category {
+  general(color: Colors.deepPurple, title: 'General'),
   sitting(color: Colors.blue, title: 'Sitting'),
-  kitchen(color: Colors.grey, title: 'kitchen'),
-  bathroom(color: Colors.green, title: 'bathroom'),
-  bedroom(color: Colors.yellow, title: 'bedroom');
+  kitchen(color: Colors.grey, title: 'Kitchen'),
+  bathroom(color: Colors.green, title: 'Bathroom'),
+  bedroom(color: Colors.yellow, title: 'Bedroom');
 
   const Category({required this.color, required this.title});
 

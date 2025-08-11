@@ -1,10 +1,14 @@
 import 'package:flutter/material.dart';
 import 'package:shopping_app/screens/splashscreen.dart';
-import 'package:firebase_core/firebase_core.dart';
+import 'package:supabase_flutter/supabase_flutter.dart';
 
 void main() async {
   WidgetsFlutterBinding.ensureInitialized();
-  await Firebase.initializeApp();
+  await Supabase.initialize(
+    url: 'https://zuuxfwhhnersdowolskd.supabase.co',
+    anonKey:
+        'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6Inp1dXhmd2hobmVyc2Rvd29sc2tkIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NTM4MDI3MTQsImV4cCI6MjA2OTM3ODcxNH0.7htdsCZX3hy67JI2DZVyesOYtZRfOgm2F31nPNRumuM',
+  );
   runApp(const MyApp());
 }
 
@@ -15,6 +19,7 @@ class MyApp extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return MaterialApp(
+      debugShowCheckedModeBanner: false,
       title: 'Flutter Demo',
       theme: ThemeData(
         colorScheme: ColorScheme.fromSeed(seedColor: Colors.deepPurple),

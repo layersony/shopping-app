@@ -1,6 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:shopping_app/models/product.dart';
-import 'package:cloud_firestore/cloud_firestore.dart';
+import 'package:supabase_flutter/supabase_flutter.dart';
 
 class HomePage extends StatefulWidget {
   const HomePage({super.key});
@@ -10,7 +10,7 @@ class HomePage extends StatefulWidget {
 }
 
 class _homePageState extends State<HomePage> {
-  final FirebaseFirestore _firestore = FirebaseFirestore.instance;
+  final supabase = Supabase.instance.client;
   List<Shopping> _my_shopping_list = [];
 
   // final List<Shopping> _my_shopping_list = [
@@ -30,11 +30,13 @@ class _homePageState extends State<HomePage> {
   }
 
   Future<void> _loadItems() async {
-    final snapshot = await _firestore.collection('shopping').get();
+    final response = await supabase.from('shopping').select();
 
     setState(() {
-      _my_shopping_list = snapshot.docs
-          .map((doc) => Shopping.fromMap(doc.data()))
+      _my_shopping_list = (response as List)
+          .map((item) => Shopping.fromMap(item))
+          .toList()
+          .reversed
           .toList();
     });
   }
@@ -168,11 +170,11 @@ class _homePageState extends State<HomePage> {
                   category: _selectedProduct,
                 );
 
-                await _firestore
-                    .collection('shopping')
-                    .add(shoppingItem.toMap());
+                await supabase.from('shopping').insert(shoppingItem.toMap());
 
                 _loadItems();
+
+                _formkey.currentState!.reset();
               }
             },
             child: Text('Add Item'),
@@ -204,18 +206,7 @@ class _homePageState extends State<HomePage> {
             //   _my_shopping_list.removeAt(index);
             // });
 
-            final docToDelete = await _firestore
-                .collection('shopping')
-                .where('item', isEqualTo: item.item)
-                .limit(1)
-                .get();
-
-            if (docToDelete.docs.isNotEmpty) {
-              await _firestore
-                  .collection('shopping')
-                  .doc(docToDelete.docs.first.id)
-                  .delete();
-            }
+            await supabase.from('shopping').delete().eq('item', item.item);
 
             _loadItems();
 
